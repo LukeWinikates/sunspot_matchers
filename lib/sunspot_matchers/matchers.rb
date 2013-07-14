@@ -292,21 +292,23 @@ module SunspotMatchers
 
     def matches?(actual)
       @actual = actual
-      search_types.include?(@expected_class)
+      search_types && search_types.include?(@expected_class)
     end
 
     def search_tuple
-      search_tuple = @actual.is_a?(Array) ? @actual : @actual.searches.last
-      raise 'no search found' unless search_tuple
-      search_tuple
+       @actual.is_a?(Array) ? @actual : @actual.searches.last
     end
 
     def search_types
-      search_tuple.first
+      search_tuple && search_tuple.first
     end
 
     def failure_message_for_should
-      "expected search class: #{search_types.join(' and ')} to match expected class: #{@expected_class}"
+      if search_types
+        "expected search class: #{search_types.join(' and ')} to match expected class: #{@expected_class}"
+      else
+        "expected a search for class: #{@expected_class}, but no searches were found"
+      end
     end
 
     def failure_message_for_should_not

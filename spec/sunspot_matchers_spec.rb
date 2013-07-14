@@ -710,39 +710,47 @@ describe "Sunspot Matchers" do
   end
 
   describe "be_a_search_for" do
-    before do
-      Sunspot.search(Post) do
-        keywords 'great pizza'
+    context "when there is no search" do
+      it "should succeed if the model is correct" do
+        Sunspot.session.should_not be_a_search_for(Post)
       end
     end
 
-    it "should succeed if the model is correct" do
-      Sunspot.session.should be_a_search_for(Post)
-    end
-
-    it "should fail if the model is incorrect" do
-      Sunspot.session.should_not be_a_search_for(Blog)
-    end
-
-    describe "when searching for multiple models" do
-      it "should be true for both" do
-        Sunspot.search([Post, Blog]) do
+    context "when there is a search" do
+      before do
+        Sunspot.search(Post) do
           keywords 'great pizza'
         end
-
-        Sunspot.session.should be_a_search_for(Post)
-        Sunspot.session.should be_a_search_for(Blog)
-        Sunspot.session.should_not be_a_search_for(Person)
       end
-    end
 
-    describe "with multiple searches" do
-      it "should allow you to choose the search" do
-        Sunspot.search(Blog) do
-          keywords 'bad pizza'
+      it "should succeed if the model is correct" do
+        Sunspot.session.should be_a_search_for(Post)
+      end
+
+      it "should fail if the model is incorrect" do
+        Sunspot.session.should_not be_a_search_for(Blog)
+      end
+
+      describe "when searching for multiple models" do
+        it "should be true for both" do
+          Sunspot.search([Post, Blog]) do
+            keywords 'great pizza'
+          end
+
+          Sunspot.session.should be_a_search_for(Post)
+          Sunspot.session.should be_a_search_for(Blog)
+          Sunspot.session.should_not be_a_search_for(Person)
         end
-        Sunspot.session.searches.first.should be_a_search_for(Post)
-        Sunspot.session.searches.last.should be_a_search_for(Blog)
+      end
+
+      describe "with multiple searches" do
+        it "should allow you to choose the search" do
+          Sunspot.search(Blog) do
+            keywords 'bad pizza'
+          end
+          Sunspot.session.searches.first.should be_a_search_for(Post)
+          Sunspot.session.searches.last.should be_a_search_for(Blog)
+        end
       end
     end
   end
